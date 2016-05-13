@@ -1,0 +1,17 @@
+apply plugin: 'groovy'
+apply plugin: 'application'
+version = '1.0'
+mainClassName = 'ru.profitware.hosts_switcher.HostsSwitcher'
+
+dependencies {
+    compile localGroovy()
+}
+
+task uberjar(type: Jar, dependsOn: [':compileGroovy']) {
+    from file(sourceSets.main.output.classesDir)
+    from configurations.runtime.asFileTree.files.collect { zipTree(it) }
+
+    manifest {
+        attributes 'Main-Class': mainClassName
+    }
+}
