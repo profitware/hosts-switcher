@@ -8,25 +8,24 @@ class HostsSwitcher {
 
         def hosts_file = new File(
             os_name.indexOf('win') >= 0 
-            ? 'C:/Windows/System32/Drivers/etc/hosts' 
-            : '/etc/hosts'
+          ? 'C:/Windows/System32/Drivers/etc/hosts' 
+          : '/etc/hosts'
         );
 
         def hosts_content = hosts_file.getText();
 
-        def (hostname, ip) = args;
-
-        if (hosts_content.contains(hostname)) {
-            hosts_file.write(
-                hosts_content.readLines().collect { 
-                    it.contains(hostname) ? "$ip $hostname" : it 
-                }.join(sep)
-            );
-
-            hosts_file << sep;
-        } else {
-            hosts_file.write("$hosts_content$sep$ip $hostname$sep");
+        switch (args.size()) {
+            case 0: hosts_content; break;
+            case 1: hosts_content = hosts_content.readLines().findAll {
+                        !it.contains(args[0])
+                    }.join(sep); break;
+            default: hosts_content = hosts_content.contains(args[0])
+                   ? hosts_content.readLines().collect { 
+                         it.contains(args[0]) ? args.join(' ') : it 
+                     }.join(sep)
+                   : "$hosts_content$sep${ args.join(' ') }$sep";
         }
 
+        hosts_file.write(hosts_content)
     }
 }
